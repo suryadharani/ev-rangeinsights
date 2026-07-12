@@ -24,7 +24,7 @@ export const Timeline: React.FC<TimelineProps> = ({
       desc: "Starting the journey on the MG Windsor EV PRO.",
       icon: Compass,
       achieved: rides.length > 0,
-      detail: rides.length > 0 ? `Logged: ${rides[0].date}` : "Pending first log"
+      detail: rides.length > 0 ? `Odo: ${rides[0].startOdo.toLocaleString()} km` : "Pending first log"
     },
     {
       id: "personal_best",

@@ -20,7 +20,6 @@ export const RideModal: React.FC<RideModalProps> = ({
   const [authError, setAuthError] = useState("");
 
   // Input states
-  const [rideDate, setRideDate] = useState(new Date().toISOString().split("T")[0]);
   const [startOdo, setStartOdo] = useState("");
   const [endOdo, setEndOdo] = useState("");
   const [startBattery, setStartBattery] = useState("");
@@ -89,7 +88,7 @@ export const RideModal: React.FC<RideModalProps> = ({
     const estimatedFullRange = Math.round(rangeStart / (battStart / 100));
 
     const newRide: Ride = {
-      date: rideDate,
+      date: new Date().toISOString().split("T")[0],
       startOdo: odoStart,
       endOdo: odoEnd,
       distance: distanceDriven,
@@ -186,22 +185,7 @@ export const RideModal: React.FC<RideModalProps> = ({
             </h3>
 
             <form onSubmit={handleFormSubmit} className="space-y-6">
-              {/* Date Selection */}
-              <div>
-                <label className={`text-[10px] uppercase font-bold tracking-wider ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
-                  Ride Date
-                </label>
-                <input
-                  type="date"
-                  value={rideDate}
-                  onChange={(e) => setRideDate(e.target.value)}
-                  className={`w-full mt-1.5 px-4 py-2.5 rounded-xl border transition-all outline-none ${
-                    isDarkMode
-                      ? "bg-black/40 border-white/10 focus:border-emerald-500 text-white"
-                      : "bg-slate-50 border-slate-200 focus:border-emerald-600 text-slate-800"
-                  }`}
-                />
-              </div>
+
 
               {/* Odometer Stats */}
               <div className="grid grid-cols-2 gap-4">

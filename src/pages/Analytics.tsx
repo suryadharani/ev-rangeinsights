@@ -20,49 +20,26 @@ interface AnalyticsProps {
 }
 
 export const Analytics: React.FC<AnalyticsProps> = ({ rides, isDarkMode }) => {
-  // If there are no rides, render a fallback message or sample data
   const hasRides = rides.length > 0;
   
-  // Format data for trends
+  // Format data using sequential Trip labels
   const chartData = hasRides
     ? rides.map((r, i) => ({
         index: i + 1,
-        date: r.date,
+        indexLabel: `Trip ${i + 1}`,
         range: r.estimatedFullRange,
         consumption: r.consumptionRate,
         distance: r.distance,
         batteryUsed: r.batteryUsed
       }))
     : [
-        { index: 1, date: "07-01", range: 380, consumption: 25.0, distance: 40, batteryUsed: 10 },
-        { index: 2, date: "07-03", range: 395, consumption: 23.5, distance: 60, batteryUsed: 15 },
-        { index: 3, date: "07-05", range: 410, consumption: 21.0, distance: 30, batteryUsed: 7 },
-        { index: 4, date: "07-08", range: 389, consumption: 24.2, distance: 55, batteryUsed: 14 }
+        { index: 1, indexLabel: "Trip 1", range: 380, consumption: 25.0, distance: 40, batteryUsed: 10 },
+        { index: 2, indexLabel: "Trip 2", range: 395, consumption: 23.5, distance: 60, batteryUsed: 15 },
+        { index: 3, indexLabel: "Trip 3", range: 410, consumption: 21.0, distance: 30, batteryUsed: 7 },
+        { index: 4, indexLabel: "Trip 4", range: 389, consumption: 24.2, distance: 55, batteryUsed: 14 }
       ];
 
-  // Group by Month to show Monthly Average Estimated Range
-  const monthlyRangeData: { month: string; avgRange: number }[] = [];
-  if (hasRides) {
-    const monthMap = new Map<string, number[]>();
-    rides.forEach(r => {
-      const monthKey = r.date.substring(0, 7); // YYYY-MM
-      const vals = monthMap.get(monthKey) || [];
-      vals.push(r.estimatedFullRange);
-      monthMap.set(monthKey, vals);
-    });
-    
-    monthMap.forEach((vals, month) => {
-      const avg = Math.round(vals.reduce((acc: number, v: number) => acc + v, 0) / vals.length);
-      monthlyRangeData.push({ month, avgRange: avg });
-    });
-    // Sort chronologically
-    monthlyRangeData.sort((a, b) => a.month.localeCompare(b.month));
-  } else {
-    monthlyRangeData.push({ month: "2026-06", avgRange: 385 });
-    monthlyRangeData.push({ month: "2026-07", avgRange: 399 });
-  }
-
-  // Custom tooltips for premium feel
+  // Custom tooltips
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -89,7 +66,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ rides, isDarkMode }) => {
           EV Performance Analytics
         </h2>
         <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-          Deep-dive efficiency curves, ranges, and consumption variables.
+          Deep-dive efficiency curves, ranges, and consumption variables plotted sequentially.
         </p>
       </div>
 
@@ -120,7 +97,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ rides, isDarkMode }) => {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
-                <XAxis dataKey="date" stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
+                <XAxis dataKey="indexLabel" stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
                 <YAxis stroke={isDarkMode ? "#555" : "#999"} fontSize={10} domain={[300, 480]} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="range" stroke="#10b981" fillOpacity={1} fill="url(#rangeGlow)" name="Full Est. Range" unit="km" strokeWidth={2} />
@@ -141,7 +118,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ rides, isDarkMode }) => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
-                <XAxis dataKey="date" stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
+                <XAxis dataKey="indexLabel" stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
                 <YAxis stroke={isDarkMode ? "#555" : "#999"} fontSize={10} domain={[10, 35]} />
                 <Tooltip content={<CustomTooltip />} />
                 <Line type="monotone" dataKey="consumption" stroke="#3b82f6" name="Consumption" unit="% / 100km" strokeWidth={2} activeDot={{ r: 6 }} />
@@ -162,7 +139,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ rides, isDarkMode }) => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
-                <XAxis dataKey="date" stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
+                <XAxis dataKey="indexLabel" stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
                 <YAxis stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="distance" fill="#6366f1" name="Distance Driven" unit="km" radius={[8, 8, 0, 0]} />
@@ -171,22 +148,22 @@ export const Analytics: React.FC<AnalyticsProps> = ({ rides, isDarkMode }) => {
           </div>
         </div>
 
-        {/* Chart 4: Monthly Average Estimated Range */}
+        {/* Chart 4: Battery Used % per Ride */}
         <div className={`p-6 rounded-3xl border transition-all duration-300 ${
           isDarkMode ? "glass-panel border-white/5" : "glass-panel-light border-slate-200"
         }`}>
           <h3 className="font-heading font-bold text-sm mb-6 flex items-center gap-2">
             <CalendarRange className="w-4 h-4 text-yellow-400" />
-            Monthly Average Estimated Range
+            Battery Used % per Ride
           </h3>
           <div className="w-full h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyRangeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
-                <XAxis dataKey="month" stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
-                <YAxis stroke={isDarkMode ? "#555" : "#999"} fontSize={10} domain={[300, 480]} />
+                <XAxis dataKey="indexLabel" stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
+                <YAxis stroke={isDarkMode ? "#555" : "#999"} fontSize={10} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="avgRange" fill="#eab308" name="Avg Monthly Range" unit="km" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="batteryUsed" fill="#f59e0b" name="Battery Used" unit="%" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

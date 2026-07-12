@@ -47,7 +47,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     : 420;
 
   const pbRide = rides.find((r) => r.estimatedFullRange === personalBestRange);
-  const pbDate = pbRide ? pbRide.date : new Date().toISOString().split("T")[0];
+  const pbOdo = pbRide ? pbRide.startOdo : 0;
 
   // Recent Ride
   const recentRide: Ride = totalRides > 0
@@ -156,7 +156,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <p className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
               Recent Ride
             </p>
-            <p className="text-[10px] text-slate-500 font-mono mt-0.5">Logged: {recentRide.date}</p>
+            <p className="text-[10px] text-slate-500 font-mono mt-0.5">Odometer: {recentRide.startOdo.toLocaleString()} km → {recentRide.endOdo.toLocaleString()} km</p>
             
             <div className="grid grid-cols-3 gap-4 mt-6">
               <div className="space-y-1">
@@ -191,7 +191,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           suffix="km"
           description={`Highest estimated range achieved over ${pbRide ? pbRide.distance : 0} km driven.`}
           isPB
-          pbDate={pbDate}
+          pbDate={pbOdo > 0 ? `Odo: ${pbOdo.toLocaleString()} km` : undefined}
           isDarkMode={isDarkMode}
         />
       </div>

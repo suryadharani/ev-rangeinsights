@@ -110,7 +110,7 @@ export function parseCSV(csvText: string): Ride[] {
     });
   }
   
-  return rides.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  return rides.sort((a, b) => a.startOdo - b.startOdo);
 }
 
 export async function fetchRidesFromSheet(): Promise<Ride[]> {
@@ -125,18 +125,18 @@ export async function fetchRidesFromSheet(): Promise<Ride[]> {
     
     const localRides = getLocalRides();
     
-    const mergedMap = new Map<string, Ride>();
+    const mergedMap = new Map<number, Ride>();
     
     sheetRides.forEach(r => {
-      mergedMap.set(`${r.date}_${r.startOdo}`, r);
+      mergedMap.set(r.startOdo, r);
     });
     
     localRides.forEach(r => {
-      mergedMap.set(`${r.date}_${r.startOdo}`, r);
+      mergedMap.set(r.startOdo, r);
     });
     
     return Array.from(mergedMap.values()).sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => a.startOdo - b.startOdo
     );
   } catch (error) {
     console.warn("Could not fetch online spreadsheet data, loading offline fallback.", error);
@@ -171,7 +171,7 @@ export async function saveNewRide(ride: Ride): Promise<boolean> {
         body: JSON.stringify({
           action: "append",
           row: [
-            ride.date,
+            ride.date, // logged timestamp under the hood
             ride.startOdo,
             ride.endOdo,
             ride.distance,
@@ -196,11 +196,11 @@ export async function saveNewRide(ride: Ride): Promise<boolean> {
   return true;
 }
 
-export async function deleteRide(date: string, startOdo: number): Promise<boolean> {
+export async function deleteRide(startOdo: number): Promise<boolean> {
   const { appsScriptUrl } = getStoredConfig();
   
   let localRides = getLocalRides();
-  localRides = localRides.filter(r => !(r.date === date && r.startOdo === startOdo));
+  localRides = localRides.filter(r => r.startOdo !== startOdo);
   saveLocalRides(localRides);
   
   if (appsScriptUrl) {
@@ -213,7 +213,6 @@ export async function deleteRide(date: string, startOdo: number): Promise<boolea
         },
         body: JSON.stringify({
           action: "delete",
-          date: date,
           startOdo: startOdo
         })
       });
@@ -226,12 +225,12 @@ export async function deleteRide(date: string, startOdo: number): Promise<boolea
   return true;
 }
 
-export async function updateRide(oldDate: string, oldStartOdo: number, updatedRide: Ride): Promise<boolean> {
+export async function updateRide(oldStartOdo: number, updatedRide: Ride): Promise<boolean> {
   const { appsScriptUrl } = getStoredConfig();
   
   let localRides = getLocalRides();
   localRides = localRides.map(r => 
-    (r.date === oldDate && r.startOdo === oldStartOdo) ? updatedRide : r
+    r.startOdo === oldStartOdo ? updatedRide : r
   );
   saveLocalRides(localRides);
   
@@ -245,7 +244,6 @@ export async function updateRide(oldDate: string, oldStartOdo: number, updatedRi
         },
         body: JSON.stringify({
           action: "update",
-          oldDate: oldDate,
           oldStartOdo: oldStartOdo,
           row: [
             updatedRide.date,

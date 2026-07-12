@@ -64,13 +64,13 @@ export default function App() {
     loadData(); // reload
   };
 
-  const handleDeleteRide = async (date: string, startOdo: number) => {
-    await deleteRide(date, startOdo);
+  const handleDeleteRide = async (startOdo: number) => {
+    await deleteRide(startOdo);
     loadData();
   };
 
-  const handleEditRide = async (oldDate: string, oldStartOdo: number, updatedRide: Ride) => {
-    await updateRide(oldDate, oldStartOdo, updatedRide);
+  const handleEditRide = async (oldStartOdo: number, updatedRide: Ride) => {
+    await updateRide(oldStartOdo, updatedRide);
     loadData();
   };
 
