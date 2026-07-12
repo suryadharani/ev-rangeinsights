@@ -22,7 +22,7 @@ export function getStoredConfig() {
     appsScriptUrl: localStorage.getItem("ev_apps_script_url") || "",
     password: localStorage.getItem("ev_password") || "aachandraarka",
     vehicleName: localStorage.getItem("ev_vehicle_name") || "MG Windsor EV PRO",
-    batteryCapacity: Number(localStorage.getItem("ev_battery_capacity")) || 53.9,
+    batteryCapacity: Number(localStorage.getItem("ev_battery_capacity")) || 52.9,
     ownerName: localStorage.getItem("ev_owner_name") || "TravelWithNani"
   };
 }
